@@ -18,6 +18,15 @@ class VehicleStop:
         self.expected_departure_time = expected_departure_time
         self.aimed_departure_time = aimed_departure_time
 
+    def to_dict(self):
+        return {
+            "stop_point_ref": self.stop_point_ref,
+            "stop_point_name": self.stop_point_name,
+            "at_stop": self.at_stop,
+            "expected_departure_time": self.expected_departure_time.isoformat(),
+            "aimed_departure_time": self.aimed_departure_time.isoformat()
+        }
+
 
     @classmethod
     def from_vehicle_stop(cls, vehicle_stop):
@@ -53,6 +62,20 @@ class Vehicle:
         self.location = location
         self.monitored_call = monitored_call
         self.onward_calls = onward_calls
+
+    def to_dict(self, timezone_str="America/Los_Angeles"):
+        return {
+            "vehicle_id": self.vehicle_id,
+            "line_ref": self.line_ref,
+            "direction_ref": self.direction_ref,
+            "train_number": self.train_number,
+            "origin_name": self.origin_name,
+            "destination_name": self.destination_name,
+            "location": self.location,
+            "monitored_call": self.monitored_call.to_dict() if self.monitored_call else None,
+            "onward_calls": [call.to_dict() for call in self.onward_calls],
+            "status_message": self.generate_status_message(ZoneInfo(timezone_str))
+        }
 
 
     def generate_status_message(self, time_zone):
@@ -103,6 +126,38 @@ class Vehicle:
             onward_calls = onward_calls
         )
     
+
+def fetch_train_data(api_key: str, timezone_str: str = "America/Los_Angeles") -> list[Vehicle]:
+    parameters = "agency=AM&api_key={}".format(api_key)
+    
+    request_url = api_template.format(
+        action = "VehicleMonitoring",
+        parameters = parameters
+    )
+    
+    response = requests.get(request_url)
+    vehicles = []
+    
+    if response.status_code == 200:
+        clean_string = response.content.decode("utf-8-sig")
+        data = json.loads(clean_string)
+        
+        # safely get the vehicle activities in case of API failure or missing keys
+        try:
+            vehicle_activities = data["Siri"]["ServiceDelivery"]["VehicleMonitoringDelivery"]["VehicleActivity"]
+        except KeyError:
+            vehicle_activities = []
+            
+        for vehicle_activity in vehicle_activities:
+            try:
+                vehicles.append(Vehicle.from_vehicle_activity(vehicle_activity))
+            except KeyError as e:
+                print(f"Error parsing vehicle: {e}")
+                continue
+    else:
+        print(f"Failed to fetch XML. Status code: {response.status_code}")
+        
+    return vehicles
 
 
 if __name__ == "__main__":
