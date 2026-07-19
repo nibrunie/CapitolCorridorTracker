@@ -543,7 +543,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function showTrainDetails(train) {
         const direction = train.direction_ref === 'N' ? 'Northbound' : (train.direction_ref === 'S' ? 'Southbound' : train.direction_ref);
         
-        const calls = train.onward_calls || [];
+        const calls = [...(train.onward_calls || [])];
+        calls.sort((a, b) => new Date(a.aimed_departure_time) - new Date(b.aimed_departure_time));
+        
         let rows = calls.map(call => {
             const exp = new Date(call.expected_departure_time);
             const aimed = new Date(call.aimed_departure_time);

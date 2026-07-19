@@ -30,6 +30,27 @@ STATIONS_CALL_NAME_MAP = {
     "SJC": "San Jose (Diridon Station)"
 }
 
+STATION_ORDER = [
+    "ARN",
+    "RLN",
+    "RSV",
+    "SAC",
+    "DAV",
+    "FFV",
+    "SUI",
+    "MTZ",
+    "RIC",
+    "BKY",
+    "EMY",
+    "OKJ",
+    "OAC",
+    "HAY",
+    "FMT",
+    "GAC",
+    "SCC",
+    "SJC"
+]
+
 STATIONS_CALL_NAME_TO_ID_MAP = {
     "ARN": 74276,
     "RLN": 74756,
