@@ -199,15 +199,21 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function getDelayColor(expected_time, aimed_time) {
         let delayMinutes = 0;
+        let overdueMinutes = 0;
         if (expected_time && aimed_time) {
             const expected = new Date(expected_time);
             const aimed = new Date(aimed_time);
             delayMinutes = (expected - aimed) / 60000;
+            
+            const now = new Date();
+            overdueMinutes = (now - expected) / 60000;
         }
         
-        if (delayMinutes >= 35) return 'var(--accent-red)';
-        if (delayMinutes >= 15) return 'var(--accent-orange-red)';
-        if (delayMinutes >= 5) return 'var(--accent-orange)';
+        const effectiveDelay = Math.max(delayMinutes, overdueMinutes);
+        
+        if (effectiveDelay >= 35) return 'var(--accent-red)';
+        if (effectiveDelay >= 15) return 'var(--accent-orange-red)';
+        if (effectiveDelay >= 5) return 'var(--accent-orange)';
         return 'var(--accent-green)';
     }
 
@@ -577,6 +583,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const scheduledLabel = isAtStop ? 'Scheduled Departure' : 'Scheduled Arrival';
             const expectedLabel = isAtStop ? 'Expected Departure' : 'Expected Arrival';
             
+            const now = new Date();
+            const overdueMins = Math.round((now - exp) / 60000);
+            let overdueText = '';
+            if (overdueMins > 0) {
+                overdueText = ` <br/><span style="font-size: 0.85em; opacity: 0.8; font-weight: normal;">(${overdueMins} min${overdueMins !== 1 ? 's' : ''} overdue)</span>`;
+            }
+            
             currentStationHTML = `
             <div class="details-content" style="margin-bottom: 1rem;">
                 <table class="details-table">
@@ -591,7 +604,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <tr>
                             <td><a href="#" class="clickable-link" onclick="openStation('${call.stop_point_ref}'); return false;"><strong>${callName}</strong> - ${call.stop_point_name}</a></td>
                             <td>${aimed.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-                            <td style="color: ${rowColor}; font-weight: bold;">${exp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                            <td style="color: ${rowColor}; font-weight: bold;">
+                                ${exp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${overdueText}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
