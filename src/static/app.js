@@ -111,9 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         .addTo(map);
                     
                     marker.on('click', () => {
-                        selectedStationId = stop.id;
-                        showStationDetails(stop);
-                        updateURLParams();
+                        openStation(stop.id);
                     });
                 }
             });
@@ -277,9 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }).addTo(map);
                 
                 marker.on('click', () => {
-                    selectedTrainId = train.vehicle_id;
-                    showTrainDetails(train);
-                    updateURLParams();
+                    openTrain(train.vehicle_id);
                 });
                 
                 trainMarkers[train.vehicle_id] = marker;
@@ -348,9 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.className = 'train-card';
             card.onclick = () => {
-                selectedTrainId = train.vehicle_id;
-                showTrainDetails(train);
-                updateURLParams();
+                openTrain(train.vehicle_id);
                 // Optionally scroll to top
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             };
@@ -473,6 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const call = calls.find(c => c.stop_point_ref === stop.id || c.stop_point_name === stop.name);
             if (call) {
                 passingTrains.push({
+                    vehicleId: train.vehicle_id,
                     trainNumber: train.train_number,
                     direction: train.direction_ref === 'N' ? 'Northbound' : (train.direction_ref === 'S' ? 'Southbound' : train.direction_ref),
                     destination: train.destination_name,
@@ -488,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const rowColor = getDelayColor(pt.expectedTime, pt.aimedTime);
             return `
             <tr>
-                <td><strong>#${pt.trainNumber}</strong></td>
+                <td><a href="#" class="clickable-link" onclick="openTrain(${pt.vehicleId}); return false;"><strong>#${pt.trainNumber}</strong></a></td>
                 <td>${pt.direction}</td>
                 <td>${pt.destination}</td>
                 <td>${pt.aimedTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
@@ -542,9 +537,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const exp = new Date(call.expected_departure_time);
             const aimed = new Date(call.aimed_departure_time);
             const rowColor = getDelayColor(exp, aimed);
+            const callName = idToCallName[call.stop_point_ref] || call.stop_point_ref;
             return `
             <tr>
-                <td><strong>${call.stop_point_name}</strong></td>
+                <td><a href="#" class="clickable-link" onclick="openStation('${call.stop_point_ref}'); return false;"><strong>${callName}</strong> - ${call.stop_point_name}</a></td>
                 <td>${aimed.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
                 <td style="color: ${rowColor}; font-weight: bold;">${exp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
             </tr>
@@ -589,6 +585,32 @@ document.addEventListener('DOMContentLoaded', () => {
         trainDetailsPane.classList.remove('hidden');
         detailsContainer.classList.remove('hidden');
     }
+
+    window.openTrain = function(vehicleId) {
+        selectedTrainId = vehicleId;
+        const train = currentTrainsData.find(t => t.vehicle_id == vehicleId);
+        if (train) {
+            showTrainDetails(train);
+            trainDetailsPane.classList.remove('order-second');
+            trainDetailsPane.classList.add('order-first');
+            stationDetailsPane.classList.remove('order-first');
+            stationDetailsPane.classList.add('order-second');
+        }
+        updateURLParams();
+    };
+
+    window.openStation = function(stationId) {
+        selectedStationId = stationId;
+        const stop = currentStopsData.find(s => s.id === stationId);
+        if (stop) {
+            showStationDetails(stop);
+            stationDetailsPane.classList.remove('order-second');
+            stationDetailsPane.classList.add('order-first');
+            trainDetailsPane.classList.remove('order-first');
+            trainDetailsPane.classList.add('order-second');
+        }
+        updateURLParams();
+    };
 
     // Start
     init();

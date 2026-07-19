@@ -26,6 +26,17 @@ body {
     position: relative;
 }
 
+a.clickable-link {
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+a.clickable-link:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+}
+
 /* Background Effects */
 .background-effects {
     position: fixed;
