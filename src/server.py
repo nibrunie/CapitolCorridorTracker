@@ -69,7 +69,7 @@ STATIONS_CALL_NAME_TO_ID_MAP = {
     "FMT": 74368,
     "GAC": 74422,
     "SCC": 74720,
-    "SJC": 74437
+    "SJC": 74752
 }
 
 app = FastAPI(title="Capitol Corridor Realtime Tracker")
