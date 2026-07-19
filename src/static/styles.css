@@ -251,11 +251,26 @@ h1 {
     font-size: 12px;
 }
 
-/* Details Pane */
-#details-pane {
+/* Details Container */
+.details-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
     margin-bottom: 2rem;
+}
+
+.detail-panel {
     padding: 1.5rem;
     transition: all 0.3s ease;
+}
+
+/* Modifier classes for ordering */
+.order-first {
+    order: 0;
+}
+
+.order-second {
+    order: 1;
 }
 
 .details-header {
@@ -271,6 +286,20 @@ h1 {
     font-size: 1.25rem;
     color: var(--accent-blue);
     margin: 0;
+}
+
+.swap-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    margin-right: 0.5rem;
+}
+
+.swap-btn:hover {
+    color: var(--accent-blue);
 }
 
 .close-btn {
@@ -334,6 +363,7 @@ h1 {
     gap: 1.25rem;
     position: relative;
     overflow: hidden;
+    cursor: pointer;
 }
 
 .train-card:hover {

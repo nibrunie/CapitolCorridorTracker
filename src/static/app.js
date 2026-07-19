@@ -15,10 +15,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedStationId = null;
     let selectedTrainId = null;
     
-    const detailsPane = document.getElementById('details-pane');
+    const detailsContainer = document.getElementById('details-container');
+    const stationDetailsPane = document.getElementById('station-details');
+    const trainDetailsPane = document.getElementById('train-details');
     
     // Initialization
     async function init() {
+        const url = new URL(window.location);
+        selectedStationId = url.searchParams.get('station');
+        selectedTrainId = url.searchParams.get('train');
+        if (selectedTrainId) selectedTrainId = parseInt(selectedTrainId);
+        
         initMap();
         
         try {
@@ -72,8 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     marker.on('click', () => {
                         selectedStationId = stop.id;
-                        selectedTrainId = null;
                         showStationDetails(stop);
+                        updateURLParams();
                     });
                 }
             });
@@ -177,8 +184,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 marker.on('click', () => {
                     selectedTrainId = train.vehicle_id;
-                    selectedStationId = null;
                     showTrainDetails(train);
+                    updateURLParams();
                 });
                 
                 trainMarkers[train.vehicle_id] = marker;
@@ -245,6 +252,13 @@ document.addEventListener('DOMContentLoaded', () => {
         trains.forEach(train => {
             const card = document.createElement('div');
             card.className = 'train-card';
+            card.onclick = () => {
+                selectedTrainId = train.vehicle_id;
+                showTrainDetails(train);
+                updateURLParams();
+                // Optionally scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
             
             // Parse direction for better UI
             const direction = train.direction_ref === 'N' ? 'Northbound' : (train.direction_ref === 'S' ? 'Southbound' : train.direction_ref);
@@ -278,14 +292,56 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Map Details Logic
-    function hideDetailsPane() {
-        detailsPane.classList.add('hidden');
+    function updateURLParams() {
+        const url = new URL(window.location);
+        if (selectedStationId) url.searchParams.set('station', selectedStationId);
+        else url.searchParams.delete('station');
+        
+        if (selectedTrainId) url.searchParams.set('train', selectedTrainId);
+        else url.searchParams.delete('train');
+        
+        window.history.pushState({}, '', url);
+    }
+
+    function checkDetailsContainer() {
+        if (!selectedStationId && !selectedTrainId) {
+            detailsContainer.classList.add('hidden');
+        } else {
+            detailsContainer.classList.remove('hidden');
+        }
+    }
+
+    function hideStationDetails() {
+        stationDetailsPane.classList.add('hidden');
         selectedStationId = null;
-        selectedTrainId = null;
+        checkDetailsContainer();
+        updateURLParams();
     }
     
-    // Attach to window so onclick works in innerHTML
-    window.hideDetailsPane = hideDetailsPane;
+    function hideTrainDetails() {
+        trainDetailsPane.classList.add('hidden');
+        selectedTrainId = null;
+        checkDetailsContainer();
+        updateURLParams();
+    }
+    
+    window.hideStationDetails = hideStationDetails;
+    window.hideTrainDetails = hideTrainDetails;
+
+    function swapPanes() {
+        if (stationDetailsPane.classList.contains('order-first')) {
+            stationDetailsPane.classList.remove('order-first');
+            stationDetailsPane.classList.add('order-second');
+            trainDetailsPane.classList.remove('order-second');
+            trainDetailsPane.classList.add('order-first');
+        } else {
+            stationDetailsPane.classList.remove('order-second');
+            stationDetailsPane.classList.add('order-first');
+            trainDetailsPane.classList.remove('order-first');
+            trainDetailsPane.classList.add('order-second');
+        }
+    }
+    window.swapPanes = swapPanes;
 
     function showStationDetails(stop) {
         let passingTrains = [];
@@ -319,10 +375,13 @@ document.addEventListener('DOMContentLoaded', () => {
             rows = `<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No upcoming trains found for this station.</td></tr>`;
         }
 
-        detailsPane.innerHTML = `
+        stationDetailsPane.innerHTML = `
             <div class="details-header">
                 <h2>🚉 ${stop.name} Station</h2>
-                <button class="close-btn" onclick="hideDetailsPane()">&times;</button>
+                <div>
+                    <button class="swap-btn" onclick="swapPanes()" title="Swap order">↕</button>
+                    <button class="close-btn" onclick="hideStationDetails()">&times;</button>
+                </div>
             </div>
             <div class="details-content">
                 <table class="details-table">
@@ -341,7 +400,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 </table>
             </div>
         `;
-        detailsPane.classList.remove('hidden');
+        if (!stationDetailsPane.classList.contains('order-first') && !stationDetailsPane.classList.contains('order-second')) {
+            stationDetailsPane.classList.add('order-first');
+            trainDetailsPane.classList.add('order-second');
+        }
+        stationDetailsPane.classList.remove('hidden');
+        detailsContainer.classList.remove('hidden');
     }
 
     function showTrainDetails(train) {
@@ -364,10 +428,13 @@ document.addEventListener('DOMContentLoaded', () => {
             rows = `<tr><td colspan="3" style="text-align: center; color: var(--text-secondary);">No upcoming stops available.</td></tr>`;
         }
 
-        detailsPane.innerHTML = `
+        trainDetailsPane.innerHTML = `
             <div class="details-header">
                 <h2>🚆 Train #${train.train_number} (${direction})</h2>
-                <button class="close-btn" onclick="hideDetailsPane()">&times;</button>
+                <div>
+                    <button class="swap-btn" onclick="swapPanes()" title="Swap order">↕</button>
+                    <button class="close-btn" onclick="hideTrainDetails()">&times;</button>
+                </div>
             </div>
             <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
                 ${train.origin_name} &rarr; ${train.destination_name} <br/>
@@ -388,7 +455,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 </table>
             </div>
         `;
-        detailsPane.classList.remove('hidden');
+        if (!trainDetailsPane.classList.contains('order-first') && !trainDetailsPane.classList.contains('order-second')) {
+            trainDetailsPane.classList.add('order-second');
+            stationDetailsPane.classList.add('order-first');
+        }
+        trainDetailsPane.classList.remove('hidden');
+        detailsContainer.classList.remove('hidden');
     }
 
     // Start
