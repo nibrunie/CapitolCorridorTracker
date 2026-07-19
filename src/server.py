@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 import json
 import os
@@ -135,6 +136,12 @@ def get_stops():
         return stops
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    favicon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "favicon.ico")
+    return FileResponse(favicon_path)
 
 
 # Mount static files to serve the frontend
