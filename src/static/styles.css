@@ -217,6 +217,42 @@ h1 {
     color: var(--accent-blue);
 }
 
+/* Custom Train Marker with Number */
+.custom-train-marker {
+    background: transparent;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.train-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(15, 23, 42, 0.9);
+    padding: 4px 8px;
+    border-radius: 16px;
+    border: 1px solid var(--accent-blue);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    white-space: nowrap;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.train-icon-container img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.train-icon-container span {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 12px;
+}
+
 /* Train Cards Grid */
 .trains-grid {
     display: grid;

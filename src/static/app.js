@@ -121,10 +121,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 iconUrl = '/assets/CC_icon-left.png';
             }
             
-            const trainIcon = L.icon({
-                iconUrl: iconUrl,
-                iconSize: [32, 32],
-                iconAnchor: [16, 16],
+            const trainIcon = L.divIcon({
+                className: 'custom-train-marker',
+                html: `
+                    <div class="train-icon-container">
+                        <img src="${iconUrl}" alt="Train" />
+                        <span>#${train.train_number}</span>
+                    </div>
+                `,
+                iconSize: [80, 32],
+                iconAnchor: [40, 16],
                 popupAnchor: [0, -16]
             });
             
