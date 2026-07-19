@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 
-from main import fetch_train_data
+from src.main import fetch_train_data
 
 app = FastAPI(title="Capitol Corridor Realtime Tracker")
 
