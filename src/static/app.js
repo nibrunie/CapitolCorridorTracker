@@ -134,6 +134,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (config.timezone) {
                     serverTimezone = config.timezone;
                 }
+                if (config.version) {
+                    const versionEl = document.getElementById('app-version');
+                    if (versionEl) versionEl.textContent = `| ${config.version}`;
+                }
                 if (config.station_call_name_to_id) {
                     callNameToId = config.station_call_name_to_id;
                     Object.entries(callNameToId).forEach(([callName, id]) => {

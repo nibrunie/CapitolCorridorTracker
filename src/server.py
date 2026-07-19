@@ -9,6 +9,8 @@ from zoneinfo import ZoneInfo
 
 from src.main import fetch_train_data
 
+VERSION = "v0.0.1"
+
 STATIONS_CALL_NAME_MAP = {
     "ARN": "Auburn",
     "RLN": "Rocklin",
@@ -117,7 +119,8 @@ def get_config():
     return {
         "refresh_interval_sec": REFRESH_INTERVAL_SEC, 
         "timezone": TIMEZONE_STR,
-        "station_call_name_to_id": STATIONS_CALL_NAME_TO_ID_MAP
+        "station_call_name_to_id": STATIONS_CALL_NAME_TO_ID_MAP,
+        "version": VERSION
     }
 
 
