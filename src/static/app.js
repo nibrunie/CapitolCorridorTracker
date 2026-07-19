@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Create a custom icon for stations
             const stationIcon = L.divIcon({
                 className: 'station-marker',
-                html: '<div style="width: 10px; height: 10px; background: var(--text-secondary); border-radius: 50%; border: 2px solid var(--bg-color);"></div>',
+                html: '<div style="width: 10px; height: 10px; background: var(--text-secondary); border-radius: 50%; border: 2px solid var(--bg-color); z-index: 200;"></div>',
                 iconSize: [14, 14],
                 iconAnchor: [7, 7]
             });
@@ -227,10 +227,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Update existing marker
                 trainMarkers[train.vehicle_id].setLatLng([lat, lng]);
                 trainMarkers[train.vehicle_id].setIcon(trainIcon);
+                trainMarkers[train.vehicle_id].setZIndexOffset(1000);
             } else {
                 // Create new marker
-                const marker = L.marker([lat, lng], {icon: trainIcon})
-                    .addTo(map);
+                const marker = L.marker([lat, lng], {
+                    icon: trainIcon,
+                    zIndexOffset: 1000
+                }).addTo(map);
                 
                 marker.on('click', () => {
                     selectedTrainId = train.vehicle_id;
