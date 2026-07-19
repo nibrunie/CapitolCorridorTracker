@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capitol Corridor Realtime Tracker</title>
+    <meta name="description" content="Realtime tracking of Capitol Corridor trains">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body>
+    <div class="background-effects">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+    
+    <div class="app-container">
+        <header class="glass-panel">
+            <div class="logo">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" fill="#3B82F6"/>
+                </svg>
+                <h1>Capitol Corridor Tracker</h1>
+            </div>
+            <div class="status-container">
+                <div class="pulse-indicator" id="pulse"></div>
+                <span id="update-status" class="status-text">Connecting...</span>
+            </div>
+        </header>
+
+        <main>
+            <!-- Map Container -->
+            <div id="map-container" class="glass-panel map-wrapper">
+                <div id="map"></div>
+            </div>
+
+            <div id="loading" class="loading-state">
+                <div class="spinner"></div>
+                <p>Locating trains...</p>
+            </div>
+            <div id="error" class="error-state hidden"></div>
+            <div class="trains-grid" id="trains-container">
+                <!-- Train cards will be injected here dynamically -->
+            </div>
+        </main>
+        
+        <footer>
+            <p>Data provided by 511.org</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
