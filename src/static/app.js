@@ -479,15 +479,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         passingTrains.sort((a, b) => a.expectedTime - b.expectedTime);
 
-        let rows = passingTrains.map(pt => {
+        let rows = passingTrains.map((pt, index) => {
             const rowColor = getDelayColor(pt.expectedTime, pt.aimedTime);
+            
+            let inMinsText = '';
+            if (index < 2) {
+                const now = new Date();
+                const diffMs = pt.expectedTime - now;
+                const diffMins = Math.max(0, Math.round(diffMs / 60000));
+                inMinsText = ` <br/><span style="font-size: 0.85em; opacity: 0.8; font-weight: normal;">(in ${diffMins} min${diffMins !== 1 ? 's' : ''})</span>`;
+            }
+            
             return `
             <tr>
                 <td><a href="#" class="clickable-link" onclick="openTrain(${pt.vehicleId}); return false;"><strong>#${pt.trainNumber}</strong></a></td>
                 <td>${pt.direction}</td>
                 <td>${pt.destination}</td>
                 <td>${pt.aimedTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-                <td style="color: ${rowColor}; font-weight: bold;">${pt.expectedTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                <td style="color: ${rowColor}; font-weight: bold;">
+                    ${pt.expectedTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${inMinsText}
+                </td>
             </tr>
             `;
         }).join('');
@@ -551,6 +562,41 @@ document.addEventListener('DOMContentLoaded', () => {
             rows = `<tr><td colspan="3" style="text-align: center; color: var(--text-secondary);">No upcoming stops available.</td></tr>`;
         }
 
+        let currentStationHTML = '';
+        if (train.monitored_call) {
+            const call = train.monitored_call;
+            const exp = new Date(call.expected_departure_time);
+            const aimed = new Date(call.aimed_departure_time);
+            const rowColor = getDelayColor(exp, aimed);
+            const callName = idToCallName[call.stop_point_ref] || call.stop_point_ref;
+            
+            const isAtStop = call.at_stop;
+            const sectionTitle = isAtStop ? 'Current Station' : 'Next Station';
+            const scheduledLabel = isAtStop ? 'Scheduled Departure' : 'Scheduled Arrival';
+            const expectedLabel = isAtStop ? 'Expected Departure' : 'Expected Arrival';
+            
+            currentStationHTML = `
+            <div class="details-content" style="margin-bottom: 1rem;">
+                <table class="details-table">
+                    <thead>
+                        <tr>
+                            <th>${sectionTitle}</th>
+                            <th>${scheduledLabel}</th>
+                            <th>${expectedLabel}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><a href="#" class="clickable-link" onclick="openStation('${call.stop_point_ref}'); return false;"><strong>${callName}</strong> - ${call.stop_point_name}</a></td>
+                            <td>${aimed.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                            <td style="color: ${rowColor}; font-weight: bold;">${exp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            `;
+        }
+
         trainDetailsPane.innerHTML = `
             <div class="details-header">
                 <h2>🚆 Train #${train.train_number} (${direction})</h2>
@@ -563,6 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${train.origin_name} &rarr; ${train.destination_name} <br/>
                 <em>${train.status_message}</em>
             </p>
+            ${currentStationHTML}
             <div class="details-content">
                 <table class="details-table">
                     <thead>
@@ -597,6 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
             stationDetailsPane.classList.add('order-second');
         }
         updateURLParams();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     window.openStation = function(stationId) {
@@ -610,6 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
             trainDetailsPane.classList.add('order-second');
         }
         updateURLParams();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     // Start
