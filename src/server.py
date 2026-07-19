@@ -31,22 +31,22 @@ STATIONS_CALL_NAME_MAP = {
 
 STATIONS_CALL_NAME_TO_ID_MAP = {
     "ARN": 74276,
-    "RLN": 74329,
-    "RSV": 74349,
-    "SAC": 74354,
+    "RLN": 74756,
+    "RSV": 74778,
+    "SAC": 74722,
     "DAV": 74328,
     "FFV": 74338,
-    "SUI": 74340,
+    "SUI": 74784,
     "MTZ": 74689,
-    "RIC": 74296,
+    "RIC": 74742,
     "BKY": 74259,
     "EMY": 74369,
-    "OKJ": 74266,
-    "OAC": 74622,
+    "OKJ": 74622,
+    "OAC": 74655,
     "HAY": 74429,
     "FMT": 74368,
     "GAC": 74422,
-    "SCC": 74411,
+    "SCC": 74720,
     "SJC": 74437
 }
 
