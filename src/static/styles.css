@@ -1,13 +1,13 @@
 :root {
-    --bg-color: #0f172a;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --glass-bg: rgba(30, 41, 59, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --accent-blue: #3b82f6;
-    --accent-green: #10b981;
-    --accent-orange: #f59e0b;
-    --accent-red: #ef4444;
+    --bg-color: #f8fafc;
+    --text-primary: #1e3a8a;
+    --text-secondary: #475569;
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --accent-blue: #1e3a8a;
+    --accent-green: #059669;
+    --accent-orange: #d97706;
+    --accent-red: #dc2626;
 }
 
 * {
@@ -103,16 +103,14 @@ h1 {
     font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: -0.025em;
-    background: linear-gradient(135deg, #60a5fa, #c084fc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--accent-blue);
 }
 
 .status-container {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    background: rgba(0,0,0,0.2);
+    background: rgba(0,0,0,0.05);
     padding: 0.5rem 1rem;
     border-radius: 2rem;
     border: 1px solid var(--glass-border);
@@ -231,11 +229,11 @@ h1 {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    background: rgba(15, 23, 42, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     padding: 4px 8px;
     border-radius: 16px;
     border: 1px solid var(--accent-blue);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     white-space: nowrap;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
@@ -251,6 +249,69 @@ h1 {
     color: var(--text-primary);
     font-weight: 700;
     font-size: 12px;
+}
+
+/* Details Pane */
+#details-pane {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 0.5rem;
+}
+
+.details-header h2 {
+    font-size: 1.25rem;
+    color: var(--accent-blue);
+    margin: 0;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: var(--accent-red);
+}
+
+.details-content {
+    overflow-x: auto;
+}
+
+.details-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.details-table th, .details-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.details-table th {
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.details-table tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
 }
 
 /* Train Cards Grid */
@@ -313,8 +374,8 @@ h1 {
 }
 
 .badge {
-    background: rgba(59, 130, 246, 0.2);
-    color: #93c5fd;
+    background: rgba(30, 58, 138, 0.1);
+    color: var(--accent-blue);
     padding: 0.25rem 0.75rem;
     border-radius: 1rem;
     font-size: 0.75rem;
@@ -324,16 +385,16 @@ h1 {
 }
 
 .train-status {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.03);
     padding: 1rem;
     border-radius: 0.75rem;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid rgba(0,0,0,0.05);
 }
 
 .status-message {
     font-size: 0.925rem;
     line-height: 1.5;
-    color: #e2e8f0;
+    color: var(--text-secondary);
 }
 
 .station-info {

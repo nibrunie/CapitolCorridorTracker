@@ -10,6 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let map;
     let trainMarkers = {}; // Store train markers by vehicle_id
     
+    let currentTrainsData = [];
+    let currentStopsData = [];
+    let selectedStationId = null;
+    let selectedTrainId = null;
+    
+    const detailsPane = document.getElementById('details-pane');
+    
     // Initialization
     async function init() {
         initMap();
@@ -33,8 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize map centered roughly around the Bay Area
         map = L.map('map').setView([37.8, -122.2], 8);
         
-        // Add OpenStreetMap dark-themed tiles (CartoDB Dark Matter)
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        // Add OpenStreetMap light-themed tiles (CartoDB Positron)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
             subdomains: 'abcd',
             maxZoom: 20
@@ -48,6 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const stops = await response.json();
             
+            currentStopsData = stops;
+            
             // Create a custom icon for stations
             const stationIcon = L.divIcon({
                 className: 'station-marker',
@@ -58,9 +67,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             stops.forEach(stop => {
                 if (stop.latitude && stop.longitude) {
-                    L.marker([parseFloat(stop.latitude), parseFloat(stop.longitude)], {icon: stationIcon})
-                        .bindPopup(`<h3>${stop.name}</h3>`)
+                    const marker = L.marker([parseFloat(stop.latitude), parseFloat(stop.longitude)], {icon: stationIcon})
                         .addTo(map);
+                    
+                    marker.on('click', () => {
+                        selectedStationId = stop.id;
+                        selectedTrainId = null;
+                        showStationDetails(stop);
+                    });
                 }
             });
         } catch (e) {
@@ -94,8 +108,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             const trains = await response.json();
+            currentTrainsData = trains;
             renderTrains(trains);
             updateTrainMarkers(trains);
+            
+            // Refresh details pane if open
+            if (selectedStationId) {
+                const stop = currentStopsData.find(s => s.id === selectedStationId);
+                if (stop) showStationDetails(stop);
+            } else if (selectedTrainId) {
+                const train = currentTrainsData.find(t => t.vehicle_id === selectedTrainId);
+                if (train) showTrainDetails(train);
+                else hideDetailsPane(); // Train might have completed journey
+            }
             
             lastUpdateTime = new Date();
             setUpdatingStatus(false);
@@ -145,12 +170,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Update existing marker
                 trainMarkers[train.vehicle_id].setLatLng([lat, lng]);
                 trainMarkers[train.vehicle_id].setIcon(trainIcon);
-                trainMarkers[train.vehicle_id].setPopupContent(popupContent);
             } else {
                 // Create new marker
                 const marker = L.marker([lat, lng], {icon: trainIcon})
-                    .bindPopup(popupContent)
                     .addTo(map);
+                
+                marker.on('click', () => {
+                    selectedTrainId = train.vehicle_id;
+                    selectedStationId = null;
+                    showTrainDetails(train);
+                });
+                
                 trainMarkers[train.vehicle_id] = marker;
             }
         });
@@ -245,6 +275,120 @@ document.addEventListener('DOMContentLoaded', () => {
             
             trainsContainer.appendChild(card);
         });
+    }
+
+    // Map Details Logic
+    function hideDetailsPane() {
+        detailsPane.classList.add('hidden');
+        selectedStationId = null;
+        selectedTrainId = null;
+    }
+    
+    // Attach to window so onclick works in innerHTML
+    window.hideDetailsPane = hideDetailsPane;
+
+    function showStationDetails(stop) {
+        let passingTrains = [];
+        currentTrainsData.forEach(train => {
+            const calls = train.onward_calls || [];
+            const call = calls.find(c => c.stop_point_ref === stop.id || c.stop_point_name === stop.name);
+            if (call) {
+                passingTrains.push({
+                    trainNumber: train.train_number,
+                    direction: train.direction_ref === 'N' ? 'Northbound' : (train.direction_ref === 'S' ? 'Southbound' : train.direction_ref),
+                    destination: train.destination_name,
+                    expectedTime: new Date(call.expected_departure_time),
+                    aimedTime: new Date(call.aimed_departure_time)
+                });
+            }
+        });
+
+        passingTrains.sort((a, b) => a.expectedTime - b.expectedTime);
+
+        let rows = passingTrains.map(pt => `
+            <tr>
+                <td><strong>#${pt.trainNumber}</strong></td>
+                <td>${pt.direction}</td>
+                <td>${pt.destination}</td>
+                <td>${pt.aimedTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                <td><strong>${pt.expectedTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</strong></td>
+            </tr>
+        `).join('');
+        
+        if (passingTrains.length === 0) {
+            rows = `<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No upcoming trains found for this station.</td></tr>`;
+        }
+
+        detailsPane.innerHTML = `
+            <div class="details-header">
+                <h2>🚉 ${stop.name} Station</h2>
+                <button class="close-btn" onclick="hideDetailsPane()">&times;</button>
+            </div>
+            <div class="details-content">
+                <table class="details-table">
+                    <thead>
+                        <tr>
+                            <th>Train #</th>
+                            <th>Direction</th>
+                            <th>Destination</th>
+                            <th>Scheduled</th>
+                            <th>Expected</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows}
+                    </tbody>
+                </table>
+            </div>
+        `;
+        detailsPane.classList.remove('hidden');
+    }
+
+    function showTrainDetails(train) {
+        const direction = train.direction_ref === 'N' ? 'Northbound' : (train.direction_ref === 'S' ? 'Southbound' : train.direction_ref);
+        
+        const calls = train.onward_calls || [];
+        let rows = calls.map(call => {
+            const exp = new Date(call.expected_departure_time);
+            const aimed = new Date(call.aimed_departure_time);
+            return `
+            <tr>
+                <td><strong>${call.stop_point_name}</strong></td>
+                <td>${aimed.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                <td><strong>${exp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</strong></td>
+            </tr>
+            `;
+        }).join('');
+        
+        if (calls.length === 0) {
+            rows = `<tr><td colspan="3" style="text-align: center; color: var(--text-secondary);">No upcoming stops available.</td></tr>`;
+        }
+
+        detailsPane.innerHTML = `
+            <div class="details-header">
+                <h2>🚆 Train #${train.train_number} (${direction})</h2>
+                <button class="close-btn" onclick="hideDetailsPane()">&times;</button>
+            </div>
+            <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+                ${train.origin_name} &rarr; ${train.destination_name} <br/>
+                <em>${train.status_message}</em>
+            </p>
+            <div class="details-content">
+                <table class="details-table">
+                    <thead>
+                        <tr>
+                            <th>Upcoming Station</th>
+                            <th>Scheduled Arrival</th>
+                            <th>Expected Arrival</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows}
+                    </tbody>
+                </table>
+            </div>
+        `;
+        detailsPane.classList.remove('hidden');
     }
 
     // Start
