@@ -1,0 +1,352 @@
+{
+  "Contents": {
+    "ResponseTimestamp": "2026-07-18T13:50:21-07:00",
+    "dataObjects": {
+      "id": "AM",
+      "ScheduledStopPoint": [
+        {
+          "id": "74276",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "Auburn-Conheim",
+          "Location": {
+            "Longitude": "-121.082922",
+            "Latitude": "38.903831"
+          },
+          "Url": "http://capitolcorridor.org/stations/auburn.php",
+          "StopType": "onstreetBus"
+        },
+        {
+          "id": "74259",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "Berkeley",
+          "Location": {
+            "Longitude": "-122.300908",
+            "Latitude": "37.867439"
+          },
+          "Url": "http://capitolcorridor.org/stations/berkeley.php",
+          "StopType": "onstreetBus"
+        },
+        {
+          "id": "74328",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "Davis",
+          "Location": {
+            "Longitude": "-121.737758",
+            "Latitude": "38.543494"
+          },
+          "Url": "http://capitolcorridor.org/stations/davis.php",
+          "StopType": "onstreetBus"
+        },
+        {
+          "id": "74369",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "Emeryville",
+          "Location": {
+            "Longitude": "-122.291808",
+            "Latitude": "37.840423"
+          },
+          "Url": "http://capitolcorridor.org/stations/emeryville.php",
+          "StopType": "onstreetBus"
+        },
+        {
+          "id": "74338",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "Fairfield-Vacaville",
+          "Location": {
+            "Longitude": "-121.968069",
+            "Latitude": "38.285398"
+          },
+          "Url": "https://www.capitolcorridor.org/stations/fairfieldvacaville/",
+          "StopType": "onstreetBus"
+        },
+        {
+          "id": "74368",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "Fremont",
+          "Location": {
+            "Longitude": "-122.007382",
+            "Latitude": "37.559142"
+          },
+          "Url": "http://capitolcorridor.org/stations/fremont.php",
+          "StopType": "onstreetBus"
+        },
+        {
+          "id": "74422",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "Great America-Santa Clara",
+          "Location": {
+            "Longitude": "-121.967132",
+            "Latitude": "37.406877"
+          },
+          "Url": "http://capitolcorridor.org/stations/santa-clara-great-america.php",
+          "StopType": "onstreetBus"
+        },
+        {
+          "id": "74429",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "Hayward",
+          "Location": {
+            "Longitude": "-122.099321",
+            "Latitude": "37.665962"
+          },
+          "Url": "http://capitolcorridor.org/stations/hayward.php",
+          "StopType": "onstreetBus"
+        },
+        {
+          "id": "74689",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "Martinez",
+          "Location": {
+            "Longitude": "-122.13883",
+            "Latitude": "38.019079"
+          },
+          "Url": "http://capitolcorridor.org/stations/martinez.php",
+          "StopType": "onstreetBus"
+        },
+        {
+          "id": "74622",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "Oakland Coliseum",
+          "Location": {
+            "Longitude": "-122.198218",
+            "Latitude": "37.752481"
+          },
+          "Url": "http://capitolcorridor.org/stations/oakland-coliseum.php",
+          "StopType": "onstreetBus"
+        },
+        {
+          "id": "74655",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "Oakland Jack London",
+          "Location": {
+            "Longitude": "-122.271521",
+            "Latitude": "37.793715"
+          },
+          "Url": "http://capitolcorridor.org/stations/oakland-jack-london.php",
+          "StopType": "onstreetBus"
+        },
+        {
+          "id": "74742",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "Richmond",
+          "Location": {
+            "Longitude": "-122.353896",
+            "Latitude": "37.936766"
+          },
+          "Url": "http://capitolcorridor.org/stations/richmond.php",
+          "StopType": "onstreetBus"
+        },
+        {
+          "id": "74756",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "Rocklin",
+          "Location": {
+            "Longitude": "-121.237397",
+            "Latitude": "38.791051"
+          },
+          "Url": "http://capitolcorridor.org/stations/rocklin.php",
+          "StopType": "onstreetBus"
+        },
+        {
+          "id": "74778",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "Roseville",
+          "Location": {
+            "Longitude": "-121.286271",
+            "Latitude": "38.749959"
+          },
+          "Url": "http://capitolcorridor.org/stations/roseville.php",
+          "StopType": "onstreetBus"
+        },
+        {
+          "id": "74722",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "Sacramento",
+          "Location": {
+            "Longitude": "-121.500699",
+            "Latitude": "38.584004"
+          },
+          "Url": "http://capitolcorridor.org/stations/sacramento.php",
+          "StopType": "onstreetBus"
+        },
+        {
+          "id": "74752",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "San Jose",
+          "Location": {
+            "Longitude": "-121.902496",
+            "Latitude": "37.329935"
+          },
+          "Url": "http://capitolcorridor.org/stations/san-jose.php",
+          "StopType": "onstreetBus"
+        },
+        {
+          "id": "74784",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "Suisun-Fairfield",
+          "Location": {
+            "Longitude": "-122.041192",
+            "Latitude": "38.243446"
+          },
+          "Url": "http://capitolcorridor.org/stations/suisun-fairfield.php",
+          "StopType": "onstreetBus"
+        },
+        {
+          "id": "74720",
+          "Extensions": {
+            "LocationType": "0",
+            "PlatformCode": null,
+            "ParentStation": null,
+            "ValidBetween": {
+              "FromDate": "2026-03-02T00:00:00-07:00",
+              "ToDate": "2027-01-03T23:59:00-07:00"
+            }
+          },
+          "Name": "University-Santa Clara",
+          "Location": {
+            "Longitude": "-121.936453",
+            "Latitude": "37.353218"
+          },
+          "Url": "http://capitolcorridor.org/stations/santa-clara-university.php",
+          "StopType": "onstreetBus"
+        }
+      ]
+    }
+  }
+}
