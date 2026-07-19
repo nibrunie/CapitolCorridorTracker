@@ -15,6 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedStationId = null;
     let selectedTrainId = null;
     
+    let callNameToId = {};
+    let idToCallName = {};
+    let initialStationParam = null;
+    let initialTrainParam = null;
+    
     const detailsContainer = document.getElementById('details-container');
     const stationDetailsPane = document.getElementById('station-details');
     const trainDetailsPane = document.getElementById('train-details');
@@ -22,14 +27,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialization
     async function init() {
         const url = new URL(window.location);
-        selectedStationId = url.searchParams.get('station');
-        selectedTrainId = url.searchParams.get('train');
-        if (selectedTrainId) selectedTrainId = parseInt(selectedTrainId);
+        initialStationParam = url.searchParams.get('station');
+        initialTrainParam = url.searchParams.get('train');
         
         initMap();
         
         try {
             await fetchConfig();
+            
+            if (initialStationParam) {
+                if (callNameToId[initialStationParam]) {
+                    selectedStationId = callNameToId[initialStationParam].toString();
+                } else {
+                    selectedStationId = initialStationParam;
+                }
+            }
+            
             await fetchStops(); // Load stops first
             await fetchTrains();
             
@@ -110,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let lastUpdateTime = new Date();
+    let serverTimezone = "America/Los_Angeles";
 
     async function fetchConfig() {
         try {
@@ -118,6 +132,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const config = await response.json();
                 if (config.refresh_interval_sec) {
                     refreshIntervalSec = config.refresh_interval_sec;
+                }
+                if (config.timezone) {
+                    serverTimezone = config.timezone;
+                }
+                if (config.station_call_name_to_id) {
+                    callNameToId = config.station_call_name_to_id;
+                    Object.entries(callNameToId).forEach(([callName, id]) => {
+                        idToCallName[id] = callName;
+                    });
                 }
             }
         } catch (e) {
@@ -128,14 +151,33 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchTrains() {
         setUpdatingStatus(true);
         try {
-            const response = await fetch('/api/trains');
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || `Server returned ${response.status}`);
+            const [trainsRes, updateRes] = await Promise.all([
+                fetch('/api/trains'),
+                fetch('/api/last_update')
+            ]);
+            
+            if (!trainsRes.ok) {
+                const errorData = await trainsRes.json();
+                throw new Error(errorData.detail || `Server returned ${trainsRes.status}`);
             }
             
-            const trains = await response.json();
+            if (updateRes.ok) {
+                const updateData = await updateRes.json();
+                lastUpdateTime = new Date(updateData.last_update);
+            } else {
+                lastUpdateTime = new Date();
+            }
+            
+            const trains = await trainsRes.json();
             currentTrainsData = trains;
+            
+            if (initialTrainParam && !selectedTrainId) {
+                const train = currentTrainsData.find(t => t.train_number == initialTrainParam || t.vehicle_id == initialTrainParam);
+                if (train) {
+                    selectedTrainId = train.vehicle_id;
+                }
+            }
+            
             renderTrains(trains);
             updateTrainMarkers(trains);
             
@@ -149,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 else hideDetailsPane(); // Train might have completed journey
             }
             
-            lastUpdateTime = new Date();
             setUpdatingStatus(false);
             errorState.classList.add('hidden');
         } catch (error) {
@@ -279,7 +320,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const diffSecs = Math.floor((now - lastUpdateTime) / 1000);
         const nextUpdateIn = Math.max(0, refreshIntervalSec - diffSecs);
         
-        updateStatus.textContent = `Updated. Next in ${nextUpdateIn}s`;
+        const timeString = lastUpdateTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        updateStatus.textContent = `Updated: ${timeString} (${serverTimezone}). Next in ${nextUpdateIn}s`;
     }
 
     function showError(message) {
@@ -362,11 +404,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // Map Details Logic
     function updateURLParams() {
         const url = new URL(window.location);
-        if (selectedStationId) url.searchParams.set('station', selectedStationId);
-        else url.searchParams.delete('station');
         
-        if (selectedTrainId) url.searchParams.set('train', selectedTrainId);
-        else url.searchParams.delete('train');
+        if (selectedStationId) {
+            const callName = idToCallName[selectedStationId];
+            url.searchParams.set('station', callName || selectedStationId);
+        } else {
+            url.searchParams.delete('station');
+        }
+        
+        if (selectedTrainId) {
+            const train = currentTrainsData.find(t => t.vehicle_id == selectedTrainId);
+            if (train && train.train_number) {
+                url.searchParams.set('train', train.train_number);
+            } else {
+                url.searchParams.set('train', selectedTrainId);
+            }
+        } else {
+            url.searchParams.delete('train');
+        }
         
         window.history.pushState({}, '', url);
     }

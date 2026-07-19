@@ -8,6 +8,48 @@ from zoneinfo import ZoneInfo
 
 from src.main import fetch_train_data
 
+STATIONS_CALL_NAME_MAP = {
+    "ARN": "Auburn",
+    "RLN": "Rocklin",
+    "RSV": "Roseville",
+    "SAC": "Sacramento (Sacramento Valley Station)",
+    "DAV": "Davis",
+    "FFV": "Fairfield-Vacaville",
+    "SUI": "Suisun-Fairfield",
+    "MTZ": "Martinez",
+    "RIC": "Richmond",
+    "BKY": "Berkeley",
+    "EMY": "Emeryville",
+    "OKJ": "Oakland (Jack London Square)",
+    "OAC": "Oakland (Coliseum/Airport)",
+    "HAY": "Hayward",
+    "FMT": "Fremont (Amtrak/ACE Station)",
+    "GAC": "Santa Clara (Great America)",
+    "SCC": "Santa Clara (University/Transit Center)",
+    "SJC": "San Jose (Diridon Station)"
+}
+
+STATIONS_CALL_NAME_TO_ID_MAP = {
+    "ARN": 74276,
+    "RLN": 74329,
+    "RSV": 74349,
+    "SAC": 74354,
+    "DAV": 74328,
+    "FFV": 74338,
+    "SUI": 74340,
+    "MTZ": 74689,
+    "RIC": 74296,
+    "BKY": 74259,
+    "EMY": 74369,
+    "OKJ": 74266,
+    "OAC": 74622,
+    "HAY": 74429,
+    "FMT": 74368,
+    "GAC": 74422,
+    "SCC": 74411,
+    "SJC": 74437
+}
+
 app = FastAPI(title="Capitol Corridor Realtime Tracker")
 
 # Read API Key from environment
@@ -44,12 +86,17 @@ def get_train_data():
     else:
         last_train_data = fetch_train_data(API_KEY, TIMEZONE_STR)
         last_retrieval_time = now
+        print(f"[LOG] Fetched new train data at {now.isoformat()}")
         return last_train_data
 
 
 @app.get("/api/config")
 def get_config():
-    return {"refresh_interval_sec": REFRESH_INTERVAL_SEC}
+    return {
+        "refresh_interval_sec": REFRESH_INTERVAL_SEC, 
+        "timezone": TIMEZONE_STR,
+        "station_call_name_to_id": STATIONS_CALL_NAME_TO_ID_MAP
+    }
 
 
 @app.get("/api/last_update")
