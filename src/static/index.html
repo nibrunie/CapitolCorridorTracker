@@ -32,25 +32,35 @@
             </div>
         </header>
 
-        <main>
-            <!-- Map Container -->
-            <div id="map-container" class="glass-panel map-wrapper">
-                <div id="map"></div>
+        <main class="layout-main">
+            <!-- Left Column: Map -->
+            <div class="layout-left">
+                <!-- Map Container -->
+                <div id="map-container" class="glass-panel map-wrapper">
+                    <div class="map-controls">
+                        <button class="map-btn" onclick="centerMapBayArea()">Bay Area</button>
+                        <button class="map-btn" onclick="centerMapAll()">All Stations</button>
+                    </div>
+                    <div id="map"></div>
+                </div>
             </div>
             
-            <!-- Details Container -->
-            <div id="details-container" class="details-container hidden">
-                <div id="station-details" class="glass-panel detail-panel hidden"></div>
-                <div id="train-details" class="glass-panel detail-panel hidden"></div>
-            </div>
+            <!-- Right Column: Details & Trains -->
+            <div class="layout-right">
+                <!-- Details Container -->
+                <div id="details-container" class="details-container hidden">
+                    <div id="station-details" class="glass-panel detail-panel hidden"></div>
+                    <div id="train-details" class="glass-panel detail-panel hidden"></div>
+                </div>
 
-            <div id="loading" class="loading-state">
-                <div class="spinner"></div>
-                <p>Locating trains...</p>
-            </div>
-            <div id="error" class="error-state hidden"></div>
-            <div class="trains-grid" id="trains-container">
-                <!-- Train cards will be injected here dynamically -->
+                <div id="loading" class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Locating trains...</p>
+                </div>
+                <div id="error" class="error-state hidden"></div>
+                <div class="trains-grid" id="trains-container">
+                    <!-- Train cards will be injected here dynamically -->
+                </div>
             </div>
         </main>
         

@@ -55,6 +55,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }).addTo(map);
     }
     
+    function centerMapBayArea() {
+        if (map) {
+            map.setView([37.8, -122.13], 9);
+        }
+    }
+    
+    function centerMapAll() {
+        if (map && currentStopsData && currentStopsData.length > 0) {
+            const validStops = currentStopsData.filter(s => s.latitude && s.longitude);
+            if (validStops.length > 0) {
+                const bounds = L.latLngBounds(validStops.map(stop => [parseFloat(stop.latitude), parseFloat(stop.longitude)]));
+                map.fitBounds(bounds, { padding: [30, 30] });
+            }
+        }
+    }
+    
+    // Attach to window so onclick works in HTML
+    window.centerMapBayArea = centerMapBayArea;
+    window.centerMapAll = centerMapAll;
+    
     async function fetchStops() {
         try {
             const response = await fetch('/api/stops');
@@ -138,6 +158,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    function getDelayColor(expected_time, aimed_time) {
+        let delayMinutes = 0;
+        if (expected_time && aimed_time) {
+            const expected = new Date(expected_time);
+            const aimed = new Date(aimed_time);
+            delayMinutes = (expected - aimed) / 60000;
+        }
+        
+        if (delayMinutes >= 35) return 'var(--accent-red)';
+        if (delayMinutes >= 15) return 'var(--accent-orange-red)';
+        if (delayMinutes >= 5) return 'var(--accent-orange)';
+        return 'var(--accent-green)';
+    }
+
     function updateTrainMarkers(trains) {
         // Keep track of active train IDs to remove stale ones
         const activeTrainIds = new Set();
@@ -153,10 +187,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 iconUrl = '/assets/CC_icon-left.png';
             }
             
+            let expectedTime = null;
+            let aimedTime = null;
+            
+            if (train.monitored_call && train.monitored_call.expected_departure_time && train.monitored_call.aimed_departure_time) {
+                expectedTime = train.monitored_call.expected_departure_time;
+                aimedTime = train.monitored_call.aimed_departure_time;
+            } else if (train.onward_calls && train.onward_calls.length > 0) {
+                const call = train.onward_calls[0];
+                if (call.expected_departure_time && call.aimed_departure_time) {
+                    expectedTime = call.expected_departure_time;
+                    aimedTime = call.aimed_departure_time;
+                }
+            }
+            
+            let borderColor = getDelayColor(expectedTime, aimedTime);
+            
             const trainIcon = L.divIcon({
                 className: 'custom-train-marker',
                 html: `
-                    <div class="train-icon-container">
+                    <div class="train-icon-container" style="border-color: ${borderColor}; box-shadow: 0 4px 10px ${borderColor}60;">
                         <img src="${iconUrl}" alt="Train" />
                         <span>#${train.train_number}</span>
                     </div>
@@ -260,6 +310,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             };
             
+            let expectedTime = null;
+            let aimedTime = null;
+            if (train.monitored_call && train.monitored_call.expected_departure_time && train.monitored_call.aimed_departure_time) {
+                expectedTime = train.monitored_call.expected_departure_time;
+                aimedTime = train.monitored_call.aimed_departure_time;
+            } else if (train.onward_calls && train.onward_calls.length > 0) {
+                const call = train.onward_calls[0];
+                if (call.expected_departure_time && call.aimed_departure_time) {
+                    expectedTime = call.expected_departure_time;
+                    aimedTime = call.aimed_departure_time;
+                }
+            }
+            const statusColor = getDelayColor(expectedTime, aimedTime);
+            card.style.borderLeft = `4px solid ${statusColor}`;
+            
             // Parse direction for better UI
             const direction = train.direction_ref === 'N' ? 'Northbound' : (train.direction_ref === 'S' ? 'Southbound' : train.direction_ref);
             
@@ -278,12 +343,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span>${train.destination_name}</span>
                         </div>
                     </div>
-                    <span class="badge">${direction}</span>
+                    <span class="badge" style="background-color: ${statusColor}20; color: ${statusColor}; border: 1px solid ${statusColor}40;">${direction}</span>
                 </div>
                 
                 <div class="train-status">
                     <div class="station-label">Current Status</div>
-                    <div class="status-message">${train.status_message}</div>
+                    <div class="status-message" style="color: ${statusColor};">${train.status_message}</div>
                 </div>
             `;
             
@@ -361,15 +426,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         passingTrains.sort((a, b) => a.expectedTime - b.expectedTime);
 
-        let rows = passingTrains.map(pt => `
+        let rows = passingTrains.map(pt => {
+            const rowColor = getDelayColor(pt.expectedTime, pt.aimedTime);
+            return `
             <tr>
                 <td><strong>#${pt.trainNumber}</strong></td>
                 <td>${pt.direction}</td>
                 <td>${pt.destination}</td>
                 <td>${pt.aimedTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-                <td><strong>${pt.expectedTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</strong></td>
+                <td style="color: ${rowColor}; font-weight: bold;">${pt.expectedTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
             </tr>
-        `).join('');
+            `;
+        }).join('');
         
         if (passingTrains.length === 0) {
             rows = `<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No upcoming trains found for this station.</td></tr>`;
@@ -415,11 +483,12 @@ document.addEventListener('DOMContentLoaded', () => {
         let rows = calls.map(call => {
             const exp = new Date(call.expected_departure_time);
             const aimed = new Date(call.aimed_departure_time);
+            const rowColor = getDelayColor(exp, aimed);
             return `
             <tr>
                 <td><strong>${call.stop_point_name}</strong></td>
                 <td>${aimed.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-                <td><strong>${exp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</strong></td>
+                <td style="color: ${rowColor}; font-weight: bold;">${exp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
             </tr>
             `;
         }).join('');

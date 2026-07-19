@@ -7,6 +7,7 @@
     --accent-blue: #1e3a8a;
     --accent-green: #059669;
     --accent-orange: #d97706;
+    --accent-orange-red: #ea580c;
     --accent-red: #dc2626;
 }
 
@@ -67,7 +68,7 @@ body {
 }
 
 .app-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 2rem;
     display: flex;
@@ -173,13 +174,68 @@ h1 {
     to { transform: rotate(360deg); }
 }
 
+/* Layout */
+.layout-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+    .layout-main {
+        display: grid;
+        grid-template-columns: 400px 1fr;
+        align-items: start;
+    }
+    
+    .layout-left {
+        position: sticky;
+        top: 2rem;
+    }
+}
+
 /* Map Styling */
 .map-wrapper {
-    margin-bottom: 2rem;
     padding: 0.5rem;
     height: 400px;
     position: relative;
     z-index: 1; /* Keep below header */
+}
+
+.map-controls {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1000;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.map-btn {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid var(--accent-blue);
+    padding: 0.4rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.map-btn:hover {
+    background: var(--accent-blue);
+    color: white;
+}
+
+@media (min-width: 1024px) {
+    .map-wrapper {
+        height: 75vh;
+        min-height: 600px;
+    }
 }
 
 #map {
@@ -232,7 +288,7 @@ h1 {
     background: rgba(255, 255, 255, 0.95);
     padding: 4px 8px;
     border-radius: 16px;
-    border: 1px solid var(--accent-blue);
+    border: 4px solid var(--accent-blue);
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     white-space: nowrap;
     backdrop-filter: blur(4px);
