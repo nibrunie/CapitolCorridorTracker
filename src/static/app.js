@@ -165,8 +165,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (updateRes.ok) {
                 const updateData = await updateRes.json();
-                lastUpdateTime = new Date(updateData.last_update);
+                if (updateData.last_update) {
+                    lastUpdateTime = new Date(updateData.last_update);
+                }
             } else {
+                console.warn("Could not fetch last update time, using current time.");
                 lastUpdateTime = new Date();
             }
             

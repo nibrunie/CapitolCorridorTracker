@@ -74,6 +74,9 @@ STATIONS_CALL_NAME_TO_ID_MAP = {
     "SJC": 74752
 }
 
+last_train_data = None # fetch_train_data(API_KEY, TIMEZONE_STR) 
+last_retrieval_time = None # datetime.now(ZoneInfo(TIMEZONE_STR))
+
 app = FastAPI(title="Capitol Corridor Realtime Tracker")
 
 # Read API Key from environment
@@ -91,8 +94,6 @@ REFRESH_INTERVAL_SEC = int(os.environ.get("REFRESH_INTERVAL_SEC", "60"))
 print(f"[LOG]: TIMEZONE_STR={TIMEZONE_STR}")
 print(f"[LOG]: REFRESH_INTERVAL_SEC={REFRESH_INTERVAL_SEC}")
 
-last_train_data = fetch_train_data(API_KEY, TIMEZONE_STR) 
-last_retrieval_time = datetime.now(ZoneInfo(TIMEZONE_STR))
 
 # retrieve train data
 # To rate limit our use of the API, the data are cached locally in the instanced
@@ -105,9 +106,11 @@ def get_train_data():
 
     now = datetime.now(ZoneInfo(TIMEZONE_STR))
 
-    if now - last_retrieval_time < timedelta(seconds=REFRESH_INTERVAL_SEC):
+    if last_train_data is not None and last_retrieval_time is not None and now - last_retrieval_time < timedelta(seconds=REFRESH_INTERVAL_SEC):
+        print(f"[LOG] Using cached train data")
         return last_train_data
     else:
+        print(f"[LOG] Fetching new train data")
         last_train_data = fetch_train_data(API_KEY, TIMEZONE_STR)
         last_retrieval_time = now
         print(f"[LOG] Fetched new train data at {now.isoformat()}")
@@ -126,6 +129,8 @@ def get_config():
 
 @app.get("/api/last_update")
 def get_last_update():
+    if last_retrieval_time is None:
+        return {"last_update": None}
     return {"last_update": last_retrieval_time.isoformat()}
 
 
