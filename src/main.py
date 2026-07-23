@@ -11,22 +11,25 @@ api_template = "https://api.511.org/transit/{action}?{parameters}"
 
 class VehicleStop:
     """ Class for representing a vehicle stop"""
-    def __init__(self, stop_point_ref: str, stop_point_name: str, at_stop: bool, expected_departure_time: datetime, aimed_departure_time: datetime):
+    def __init__(self, stop_point_ref: str, stop_point_name: str, at_stop: bool, expected_departure_time: datetime, aimed_departure_time: datetime, expected_arrival_time: datetime = None, aimed_arrival_time: datetime = None):
         self.stop_point_ref = stop_point_ref
         self.stop_point_name = stop_point_name
         self.at_stop = at_stop
         self.expected_departure_time = expected_departure_time
         self.aimed_departure_time = aimed_departure_time
+        self.expected_arrival_time = expected_arrival_time
+        self.aimed_arrival_time = aimed_arrival_time
 
     def to_dict(self):
         return {
             "stop_point_ref": self.stop_point_ref,
             "stop_point_name": self.stop_point_name,
             "at_stop": self.at_stop,
-            "expected_departure_time": self.expected_departure_time.isoformat(),
-            "aimed_departure_time": self.aimed_departure_time.isoformat()
+            "expected_departure_time": self.expected_departure_time.isoformat() if self.expected_departure_time else None,
+            "aimed_departure_time": self.aimed_departure_time.isoformat() if self.aimed_departure_time else None,
+            "expected_arrival_time": self.expected_arrival_time.isoformat() if self.expected_arrival_time else None,
+            "aimed_arrival_time": self.aimed_arrival_time.isoformat() if self.aimed_arrival_time else None
         }
-
 
     @classmethod
     def from_vehicle_stop(cls, vehicle_stop):
@@ -38,15 +41,25 @@ class VehicleStop:
             at_stop = False
 
         # Parsing time and re-aligning to UTC timezone (used in encodings)
-        expected_departure_time = datetime.strptime(vehicle_stop["ExpectedDepartureTime"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=ZoneInfo("UTC"))
-        aimed_departure_time = datetime.strptime(vehicle_stop["AimedDepartureTime"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=ZoneInfo("UTC"))
+        def parse_time(key):
+            val = vehicle_stop.get(key)
+            if val:
+                return datetime.strptime(val, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=ZoneInfo("UTC"))
+            return None
+
+        expected_departure_time = parse_time("ExpectedDepartureTime")
+        aimed_departure_time = parse_time("AimedDepartureTime")
+        expected_arrival_time = parse_time("ExpectedArrivalTime")
+        aimed_arrival_time = parse_time("AimedArrivalTime")
 
         return cls(
             stop_point_ref = stop_point_ref,
             stop_point_name = stop_point_name,
             at_stop = at_stop,
             expected_departure_time = expected_departure_time,
-            aimed_departure_time = aimed_departure_time
+            aimed_departure_time = aimed_departure_time,
+            expected_arrival_time = expected_arrival_time,
+            aimed_arrival_time = aimed_arrival_time
         )
     
 

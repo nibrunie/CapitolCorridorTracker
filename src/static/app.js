@@ -484,40 +484,56 @@ document.addEventListener('DOMContentLoaded', () => {
                     trainNumber: train.train_number,
                     direction: train.direction_ref === 'N' ? 'Northbound' : (train.direction_ref === 'S' ? 'Southbound' : train.direction_ref),
                     destination: train.destination_name,
-                    expectedTime: new Date(call.expected_departure_time),
-                    aimedTime: new Date(call.aimed_departure_time)
+                    expectedTime: call.expected_departure_time ? new Date(call.expected_departure_time) : null,
+                    aimedTime: call.aimed_departure_time ? new Date(call.aimed_departure_time) : null,
+                    expectedArr: call.expected_arrival_time ? new Date(call.expected_arrival_time) : null,
+                    aimedArr: call.aimed_arrival_time ? new Date(call.aimed_arrival_time) : null
                 });
             }
         });
 
-        passingTrains.sort((a, b) => a.expectedTime - b.expectedTime);
+        passingTrains.sort((a, b) => {
+            const timeA = a.expectedTime || a.expectedArr || new Date(0);
+            const timeB = b.expectedTime || b.expectedArr || new Date(0);
+            return timeA - timeB;
+        });
 
         let rows = passingTrains.map((pt, index) => {
-            const rowColor = getDelayColor(pt.expectedTime, pt.aimedTime);
+            const arrColor = getDelayColor(pt.expectedArr, pt.aimedArr);
+            const depColor = getDelayColor(pt.expectedTime, pt.aimedTime);
             
             let inMinsText = '';
-            if (index < 2) {
+            // Determine which time to use for the countdown (prefer arrival if available, else departure)
+            let sortTime = pt.expectedArr ? pt.expectedArr : pt.expectedTime;
+            
+            if (index < 2 && sortTime) {
                 const now = new Date();
-                const diffMs = pt.expectedTime - now;
+                const diffMs = sortTime - now;
                 const diffMins = Math.max(0, Math.round(diffMs / 60000));
                 inMinsText = ` <br/><span style="font-size: 0.85em; opacity: 0.8; font-weight: normal;">(in ${diffMins} min${diffMins !== 1 ? 's' : ''})</span>`;
             }
             
+            const formatTime = (timeObj) => timeObj ? timeObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--';
+
             return `
             <tr>
                 <td><a href="#" class="clickable-link" onclick="openTrain(${pt.vehicleId}); return false;"><strong>#${pt.trainNumber}</strong></a></td>
                 <td>${pt.direction}</td>
                 <td>${pt.destination}</td>
-                <td>${pt.aimedTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-                <td style="color: ${rowColor}; font-weight: bold;">
-                    ${pt.expectedTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${inMinsText}
+                <td>${formatTime(pt.aimedArr)}</td>
+                <td style="color: ${pt.expectedArr ? arrColor : 'inherit'}; font-weight: bold;">
+                    ${formatTime(pt.expectedArr)}${pt.expectedArr ? inMinsText : ''}
+                </td>
+                <td>${formatTime(pt.aimedTime)}</td>
+                <td style="color: ${pt.expectedTime ? depColor : 'inherit'}; font-weight: bold;">
+                    ${formatTime(pt.expectedTime)}${pt.expectedArr ? '' : inMinsText}
                 </td>
             </tr>
             `;
         }).join('');
         
         if (passingTrains.length === 0) {
-            rows = `<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No upcoming trains found for this station.</td></tr>`;
+            rows = `<tr><td colspan="7" style="text-align: center; color: var(--text-secondary);">No upcoming trains found for this station.</td></tr>`;
         }
 
         stationDetailsPane.innerHTML = `
@@ -529,14 +545,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
             <div class="details-content">
-                <table class="details-table">
+                <table class="details-table" style="font-size: 0.9em;">
                     <thead>
                         <tr>
                             <th>Train #</th>
                             <th>Direction</th>
                             <th>Destination</th>
-                            <th>Scheduled</th>
-                            <th>Expected</th>
+                            <th>Sch. Arr</th>
+                            <th>Exp. Arr</th>
+                            <th>Sch. Dep</th>
+                            <th>Exp. Dep</th>
                         </tr>
                     </thead>
                     <tbody>
