@@ -686,7 +686,9 @@ document.addEventListener('DOMContentLoaded', () => {
             stationDetailsPane.classList.add('order-second');
         }
         updateURLParams();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => {
+            trainDetailsPane.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
     };
 
     window.openStation = function(stationId) {
@@ -700,7 +702,9 @@ document.addEventListener('DOMContentLoaded', () => {
             trainDetailsPane.classList.add('order-second');
         }
         updateURLParams();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => {
+            stationDetailsPane.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
     };
 
     // Start
