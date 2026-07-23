@@ -12,6 +12,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/ ./src/
 COPY data/ ./data/
 COPY assets/ ./assets/
+COPY favicon.ico ./favicon.ico
+
+# Note: the static directory is not currently exposed in the container
 
 # Cloud Run injects the PORT environment variable (default 8080)
 ENV PORT=8080
