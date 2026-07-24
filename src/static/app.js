@@ -477,7 +477,12 @@ document.addEventListener('DOMContentLoaded', () => {
         let passingTrains = [];
         currentTrainsData.forEach(train => {
             const calls = train.onward_calls || [];
-            const call = calls.find(c => c.stop_point_ref === stop.id || c.stop_point_name === stop.name);
+            let call = calls.find(c => c.stop_point_ref === stop.id || c.stop_point_name === stop.name);
+            let monitoredAtStop = false;
+            if (!call && train.monitored_call && train.monitored_call.stop_point_ref === stop.id) {
+                call = train.monitored_call;
+                monitoredAtStop = train.monitored_call.at_stop === "true";
+            }
             if (call) {
                 passingTrains.push({
                     vehicleId: train.vehicle_id,
@@ -486,8 +491,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     destination: train.destination_name,
                     expectedTime: call.expected_departure_time ? new Date(call.expected_departure_time) : null,
                     aimedTime: call.aimed_departure_time ? new Date(call.aimed_departure_time) : null,
-                    expectedArr: call.expected_arrival_time ? new Date(call.expected_arrival_time) : null,
-                    aimedArr: call.aimed_arrival_time ? new Date(call.aimed_arrival_time) : null
+                    expectedArr: call.expected_arrival_time && !monitoredAtStop? new Date(call.expected_arrival_time) : null,
+                    aimedArr: call.aimed_arrival_time && !monitoredAtStop ? new Date(call.aimed_arrival_time) : null
                 });
             }
         });

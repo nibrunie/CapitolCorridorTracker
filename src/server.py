@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 
 from src.main import fetch_train_data
 
-VERSION = "v0.0.4"
+VERSION = "v0.0.5"
 
 STATIONS_CALL_NAME_MAP = {
     "ARN": "Auburn",
