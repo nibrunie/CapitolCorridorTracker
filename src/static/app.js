@@ -359,7 +359,6 @@ document.addEventListener('DOMContentLoaded', () => {
             card.onclick = () => {
                 openTrain(train.vehicle_id);
                 // Optionally scroll to top
-                window.scrollTo({ top: 0, behavior: 'smooth' });
             };
             
             let expectedTime = null;
@@ -478,10 +477,17 @@ document.addEventListener('DOMContentLoaded', () => {
         currentTrainsData.forEach(train => {
             const calls = train.onward_calls || [];
             let call = calls.find(c => c.stop_point_ref === stop.id || c.stop_point_name === stop.name);
-            let monitoredAtStop = false;
+            let doNotDisplayArrival = false;
+            let doNotDisplayDeparture = false
             if (!call && train.monitored_call && train.monitored_call.stop_point_ref === stop.id) {
                 call = train.monitored_call;
-                monitoredAtStop = train.monitored_call.at_stop === "true";
+                // if the train is already at the stop, no need to display the arrival time
+                doNotDisplayArrival = train.monitored_call.at_stop === "true";
+                // if the last stop in the train is the current stop, do not display the departure time
+                doNotDisplayDeparture = train.onward_calls && train.onward_calls.length === 0;
+            } else {
+                // if the stop is the last one in the onward calls, do not display the departure time
+                doNotDisplayDeparture = (call && train.onward_calls && call === train.onward_calls[train.onward_calls.length - 1] || true);
             }
             if (call) {
                 passingTrains.push({
@@ -489,10 +495,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     trainNumber: train.train_number,
                     direction: train.direction_ref === 'N' ? 'Northbound' : (train.direction_ref === 'S' ? 'Southbound' : train.direction_ref),
                     destination: train.destination_name,
-                    expectedTime: call.expected_departure_time ? new Date(call.expected_departure_time) : null,
-                    aimedTime: call.aimed_departure_time ? new Date(call.aimed_departure_time) : null,
-                    expectedArr: call.expected_arrival_time && !monitoredAtStop? new Date(call.expected_arrival_time) : null,
-                    aimedArr: call.aimed_arrival_time && !monitoredAtStop ? new Date(call.aimed_arrival_time) : null
+                    expectedTime: call.expected_departure_time && !doNotDisplayDeparture ? new Date(call.expected_departure_time) : null,
+                    aimedTime: call.aimed_departure_time && !doNotDisplayDeparture ? new Date(call.aimed_departure_time) : null,
+                    expectedArr: call.expected_arrival_time && !doNotDisplayArrival? new Date(call.expected_arrival_time) : null,
+                    aimedArr: call.aimed_arrival_time && !doNotDisplayArrival ? new Date(call.aimed_arrival_time) : null
                 });
             }
         });
@@ -607,11 +613,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const aimed = new Date(call.aimed_departure_time);
             const rowColor = getDelayColor(exp, aimed);
             const callName = idToCallName[call.stop_point_ref] || call.stop_point_ref;
+            const arrived = train.onward_calls && train.onward_calls.length === 0;
             
             const isAtStop = call.at_stop;
             const sectionTitle = isAtStop ? 'Current Station' : 'Next Station';
-            const scheduledLabel = isAtStop ? 'Scheduled Departure' : 'Scheduled Arrival';
-            const expectedLabel = isAtStop ? 'Expected Departure' : 'Expected Arrival';
+            const scheduledLabel = !arrived && isAtStop ? 'Scheduled Departure' : 'Scheduled Arrival';
+            const expectedLabel = !arrived && isAtStop ? 'Expected Departure' : (!arrived ? 'Expected Arrival' : 'Arrived');
             
             const now = new Date();
             const overdueMins = Math.round((now - exp) / 60000);
@@ -693,6 +700,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateURLParams();
         setTimeout(() => {
             trainDetailsPane.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 50);
     };
 
@@ -709,6 +717,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateURLParams();
         setTimeout(() => {
             stationDetailsPane.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 50);
     };
 
