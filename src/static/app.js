@@ -60,8 +60,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize map centered roughly around the Bay Area
         map = L.map('map').setView([37.8, -122.2], 8);
         
+        const url = new URL(window.location);
+        const cartoKey = url.searchParams.get('carto_key');
+        let tileUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+        if (cartoKey) {
+            tileUrl += `?key=${cartoKey}`;
+        }
+        
         // Add OpenStreetMap light-themed tiles (CartoDB Positron)
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        L.tileLayer(tileUrl, {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
             subdomains: 'abcd',
             maxZoom: 20
